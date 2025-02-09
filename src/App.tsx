@@ -1,20 +1,28 @@
+import { useState, ChangeEvent } from "react";
 
-import { useState } from "react";
+// Use a type-safe environment variable access
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-const API_KEY = process.env.OPENAI_API_KEY 
+// interface FileReaderEvent extends ProgressEvent {
+//   target: (EventTarget & { result: string }) | null;
+// }
 
 function App() {
-  const [figmaJson, setFigmaJson] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [figmaJson, setFigmaJson] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [generatedCode, setGeneratedCode] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Helper function: Convert file to Base64 string
-  const fileToBase64 = (file) => {
+  const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          resolve(e.target.result as string);
+        }
+      };
       reader.onerror = (error) => reject(error);
     });
   };
@@ -37,7 +45,7 @@ Image (base64):
 ${base64Image}
         `.trim();
       } catch (error) {
-        setGeneratedCode("Error processing image: " + error.message);
+        setGeneratedCode(`Error processing image: ${error instanceof Error ? error.message : 'Unknown error'}`);
         setLoading(false);
         return;
       }
@@ -78,7 +86,7 @@ ${figmaJson}
         setGeneratedCode("Error: Could not generate code. Please check your input.");
       }
     } catch (error) {
-      setGeneratedCode("Error: " + error.message);
+      setGeneratedCode(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     setLoading(false);
   };
@@ -87,12 +95,13 @@ ${figmaJson}
     try {
       await navigator.clipboard.writeText(generatedCode);
       alert("Copied to clipboard!");
-    } catch (err) {
+    } catch (_err) {
+      console.error("Failed to copy text:", _err);
       alert("Failed to copy!");
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
@@ -106,10 +115,10 @@ ${figmaJson}
         <label className="block mb-1 font-medium">Paste Figma JSON:</label>
         <textarea
           className="w-full p-2 border border-gray-300 rounded"
-          rows="6"
+          rows={6}
           placeholder="Paste your Figma JSON here..."
           value={figmaJson}
-          onChange={(e) => setFigmaJson(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFigmaJson(e.target.value)}
         />
       </div>
 
