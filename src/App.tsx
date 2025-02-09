@@ -3,9 +3,6 @@ import { useState, ChangeEvent } from "react";
 // Use a type-safe environment variable access
 const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-// interface FileReaderEvent extends ProgressEvent {
-//   target: (EventTarget & { result: string }) | null;
-// }
 
 function App() {
   const [figmaJson, setFigmaJson] = useState<string>("");
