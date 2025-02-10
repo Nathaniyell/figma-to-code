@@ -174,7 +174,7 @@ function App() {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">Figma to JSX Converter</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Figma to Code Converter</h1>
 
       <div className="mb-4">
         <label className="block mb-1 font-medium">Paste Figma JSON or Image:</label>
